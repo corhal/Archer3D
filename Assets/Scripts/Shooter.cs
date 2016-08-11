@@ -40,6 +40,9 @@ public class Shooter : MonoBehaviour {
 		z = Target.transform.position.z + z;
 		//Debug.Log (x + ":" + z);
 
+		//x = Target.transform.position.x;
+		//z = Target.transform.position.z;
+
 		transform.rotation = Quaternion.LookRotation (new Vector3(x, 0.0f, z));
 
 		Vector3 distance = new Vector3 (x, ShootPoint.transform.position.y, z);
@@ -62,7 +65,7 @@ public class Shooter : MonoBehaviour {
 	float FindAngle() {
 		float a = (g * Mathf.Pow (l, 2)) / (2 * v0sq);
 		float b = -l;
-		float c = b - h;
+		float c = a - h;
 		Debug.Log ("a, b, c: " + a + ":" + b + ":" + c);
 		float alpha = SquareSolve (a, b, c);
 
@@ -81,11 +84,11 @@ public class Shooter : MonoBehaviour {
 		Debug.Log ("x: " + x1 + ":" + x2);
 		float alpha1 = Mathf.Atan (x1);
 		float alpha2 = Mathf.Atan (x2);
-		Debug.Log ("alphas: " + alpha1 + ":" + alpha2);
+		Debug.Log ("alphas: " + alpha1 * Mathf.Rad2Deg  + ":" + alpha2 * Mathf.Rad2Deg);
 		alpha1 = alpha1 * Mathf.Rad2Deg;
 		alpha2 = alpha2 * Mathf.Rad2Deg;
 		// Debug.Log ("alpha1: " + alpha1 + ", alpha2: " + alpha2);
-		return -alpha2;
+		return alpha2;
 		/*if (Mathf.Min(alpha1, alpha2) > 0) {
 			return Mathf.Min (alpha1, alpha2);
 		} else {
