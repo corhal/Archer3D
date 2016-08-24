@@ -46,18 +46,14 @@ public class Shooter : MonoBehaviour {
 		return xz;
 	}
 
-	void Shoot() {
-		
-		float x = Target.transform.position.x;
-		float z = Target.transform.position.z;
-
+	void Shoot(float x, float y, float z) {		
 		float dx = Random.Range (-HorizontalSpread, HorizontalSpread);
 
 		transform.rotation = Quaternion.LookRotation (new Vector3(x, 0.0f, z));
 
 		Vector3 distance = new Vector3 (x, ShootPoint.transform.position.y, z);
 		l = Vector3.Distance (ShootPoint.transform.position, distance);
-		h = ShootPoint.transform.position.y - Target.transform.position.y;
+		h = ShootPoint.transform.position.y - y;
 		Debug.Log ("l: " + l + ", h: " + h);
 
 		float dAlphaX = Random.Range (-VerticalSpread, VerticalSpread);
@@ -68,12 +64,27 @@ public class Shooter : MonoBehaviour {
 		GameObject ArrowObject = Instantiate (ArrowPrefab, ShootPoint.transform.position, ShootPoint.transform.rotation) as GameObject;
 		Arrow arrow = ArrowObject.GetComponent<Arrow> ();
 		arrow.Force = ShootForce;
+
+		// y = Ax - Bx2
+		float A = Mathf.Tan (alpha * Mathf.Deg2Rad);
+		// B = g / ( 2 v0sq cos^2 alpha)
+		float B = g / (2 * v0sq * Mathf.Pow(Mathf.Cos(alpha * Mathf.Deg2Rad), 2.0f));
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if (Input.GetMouseButtonDown(0)) {
+			RaycastHit hit;
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+			if (Physics.Raycast(ray, out hit)) {
+				Vector3 coords = hit.point;
+				Shoot (coords.x, coords.y, coords.z);
+			}
+		}
 		if (Input.GetKeyDown(KeyCode.Space)) {
-			Shoot ();
+			Shoot (Target.transform.position.x, Target.transform.position.y, Target.transform.position.z);
 		}	
 	}
 

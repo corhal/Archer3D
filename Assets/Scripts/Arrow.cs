@@ -10,7 +10,7 @@ public class Arrow : MonoBehaviour {
 	Vector3 initialPosition;
 
 	void Awake() {
-		myRigidbody = GetComponent<Rigidbody> ();
+		myRigidbody = GetComponentInChildren<Rigidbody> ();
 	}
 
 	void Start() {
@@ -35,19 +35,37 @@ public class Arrow : MonoBehaviour {
 
 	}
 
+	bool shouldStop;
+	public float SlowDown;
+	Vector3 collisionVelocity;
+	float t = 0.0f;
+	public float LerpSpeed;
+
 	void Update() {
 		if (isFlying) {
 			transform.rotation = Quaternion.LookRotation (myRigidbody.velocity);
 		}
-		//Debug.Log (transform.rotation);
+
+		if (shouldStop) {		
+
+			transform.Translate (transform.forward * Mathf.Lerp (SlowDown, 0.0f, t));
+			t += LerpSpeed * Time.deltaTime;
+
+			if (t >= 1.0f) {
+				shouldStop = false;
+			}
+		}
 	}
 
-	void OnTriggerEnter(Collider other) {
-		if (other.GetComponentInParent<Arrow>() == null) {			
+	void OnCollisionEnter(Collision other) {
+		if (other.gameObject.GetComponentInParent<Arrow>() == null) {			
 			isFlying = false;
-			myRigidbody.velocity = Vector3.zero;
+			shouldStop = true;
+			//myRigidbody.velocity = Vector3.zero;
 			transform.SetParent (other.transform);
-			Destroy (GetComponentInChildren<Collider> ());
+			//GetComponent<Collider> ().isTrigger = true;
+			Destroy (GetComponent<Collider> ());
+			//collisionVelocity = other.relativeVelocity;
 			Destroy (myRigidbody);
 			//myRigidbody.useGravity = false;
 		}
