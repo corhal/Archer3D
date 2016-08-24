@@ -43,12 +43,14 @@ public class Arrow : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-		//if (other.GetComponent<Arrow>() == null) {
+		if (other.GetComponentInParent<Arrow>() == null) {			
 			isFlying = false;
 			myRigidbody.velocity = Vector3.zero;
+			transform.SetParent (other.transform);
+			Destroy (GetComponentInChildren<Collider> ());
 			Destroy (myRigidbody);
 			//myRigidbody.useGravity = false;
-		//}
+		}
 		Vector3 myPosition = new Vector3 (transform.position.x, 0.0f, transform.position.z);
 		Debug.Log(Vector3.Distance(initialPosition, myPosition));
 	}

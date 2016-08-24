@@ -6,19 +6,23 @@ public class Shooter : MonoBehaviour {
 	public GameObject ShootPoint;
 	public GameObject ArrowPrefab;
 	public GameObject Target;
+
+	public float ShootForce;
+	public float HorizontalSpread;
+	public float VerticalSpread;
+
 	float g = Physics.gravity.magnitude;
-	float v0sq = 100.0f;
+	float v0sq;
 	float l;
 	float h;
 
 	// Use this for initialization
 	void Start () {
-		
+		v0sq = Mathf.Pow (ShootForce, 2.0f);
 	}
 
-	void Shoot() {
-		// transform.rotation = Quaternion.LookRotation (new Vector3(Target.transform.position.x, 0.0f, Target.transform.position.z));
-
+	float[] RandomizeCirclePoint() {
+		float[] xz = new float[2];
 		float radius = Target.transform.localScale.x / 2;
 		float t = 2 * Mathf.PI * Random.Range (0, radius);
 		float u = Random.Range (0, radius) + Random.Range (0, radius);
@@ -36,23 +40,34 @@ public class Shooter : MonoBehaviour {
 
 		float x = r * Mathf.Cos (t);
 		float z = r * Mathf.Sin (t);
-		x = Target.transform.position.x + x;
-		z = Target.transform.position.z + z;
-		//Debug.Log (x + ":" + z);
+		xz[0] = Target.transform.position.x + x;
+		xz[1] = Target.transform.position.z + z;
 
-		//x = Target.transform.position.x;
-		//z = Target.transform.position.z;
+		return xz;
+	}
+
+	void Shoot() {
+		
+		float x = Target.transform.position.x;
+		float z = Target.transform.position.z;
+
+		float dx = Random.Range (-HorizontalSpread, HorizontalSpread);
 
 		transform.rotation = Quaternion.LookRotation (new Vector3(x, 0.0f, z));
 
 		Vector3 distance = new Vector3 (x, ShootPoint.transform.position.y, z);
 		l = Vector3.Distance (ShootPoint.transform.position, distance);
-		h = ShootPoint.transform.position.y;
+		h = ShootPoint.transform.position.y - Target.transform.position.y;
 		Debug.Log ("l: " + l + ", h: " + h);
-		float alpha = FindAngle ();
-		ShootPoint.transform.eulerAngles = new Vector3 (-alpha, transform.eulerAngles.y, transform.eulerAngles.z);
+
+		float dAlphaX = Random.Range (-VerticalSpread, VerticalSpread);
+		float dAlphaY = Random.Range (-VerticalSpread, VerticalSpread);
+		float alpha = FindAngle () + dAlphaX;
+		ShootPoint.transform.eulerAngles = new Vector3 (-alpha, transform.eulerAngles.y + dAlphaY, transform.eulerAngles.z);
 		//Debug.Log (ShootPoint.transform.eulerAngles);
-		Instantiate (ArrowPrefab, ShootPoint.transform.position, ShootPoint.transform.rotation);
+		GameObject ArrowObject = Instantiate (ArrowPrefab, ShootPoint.transform.position, ShootPoint.transform.rotation) as GameObject;
+		Arrow arrow = ArrowObject.GetComponent<Arrow> ();
+		arrow.Force = ShootForce;
 	}
 	
 	// Update is called once per frame
